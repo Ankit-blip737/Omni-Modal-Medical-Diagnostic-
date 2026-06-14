@@ -1,0 +1,84 @@
+# ═══════════════════════════════════════════════════════════════
+#  Dataset-Specific Configurations
+# ═══════════════════════════════════════════════════════════════
+
+# ─── MIMIC-CXR (Chest X-ray + Radiology Reports) ───
+mimic_cxr:
+  dataset: mimic_cxr
+  root_dir: ./data/mimic-cxr
+  image_size: 224
+  max_text_length: 512
+  num_workers: 4
+  pin_memory: true
+  batch_size: 32
+
+  # CheXpert 14 pathology labels
+  labels:
+    - Atelectasis
+    - Cardiomegaly
+    - Consolidation
+    - Edema
+    - Enlarged Cardiomediastinum
+    - Fracture
+    - Lung Lesion
+    - Lung Opacity
+    - No Finding
+    - Pleural Effusion
+    - Pleural Other
+    - Pneumonia
+    - Pneumothorax
+    - Support Devices
+
+  # How to handle CheXpert uncertain labels (-1)
+  uncertain_strategy: zero   # zero | one | ignore
+
+  # Which report sections to use for text input
+  text_sections: findings_impression   # all | findings_impression | impression_only
+
+  # Expected directory layout:
+  # root_dir/
+  # ├── train.csv          (dicom_id, subject_id, image_path, report_text, labels...)
+  # ├── val.csv
+  # ├── test.csv
+  # └── images/
+  #     ├── p10/p10000032/s50414267/02aa804e-bde0afdd-112c0b34-7bc16630-4e384014.jpg
+  #     └── ...
+
+# ─── BraTS (Multi-Modal Brain MRI) ───
+brats:
+  dataset: brats
+  root_dir: ./data/brats
+  image_size: 224
+  num_workers: 4
+  pin_memory: true
+  batch_size: 16
+
+  # MRI modalities to load
+  modalities:
+    - t1
+    - t2
+    - flair
+  # Optional: also include t1ce
+  # - t1ce
+
+  # Slice extraction from 3D volumes
+  num_slices: 16             # Number of 2D axial slices per volume
+  min_tumor_area: 100        # Min tumor pixels to include a slice
+
+  # Tumor classification labels
+  labels:
+    - No Tumor
+    - Low-Grade Glioma (LGG)
+    - High-Grade Glioma (HGG)
+
+  # Expected directory layout:
+  # root_dir/
+  # ├── train/
+  # │   ├── BraTS2021_00000/
+  # │   │   ├── BraTS2021_00000_t1.nii.gz
+  # │   │   ├── BraTS2021_00000_t2.nii.gz
+  # │   │   ├── BraTS2021_00000_flair.nii.gz
+  # │   │   └── BraTS2021_00000_seg.nii.gz
+  # │   └── ...
+  # └── val/
+  #     └── ...

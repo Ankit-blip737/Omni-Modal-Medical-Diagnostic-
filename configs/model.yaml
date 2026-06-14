@@ -1,0 +1,45 @@
+# ═══════════════════════════════════════════════════════════════
+#  Model Architecture Variants
+# ═══════════════════════════════════════════════════════════════
+
+# Full model for multi-modal MRI + text
+omni_modal_base:
+  num_modalities: 3
+  num_classes: 3             # BraTS: No Tumor / LGG / HGG
+  text_model: pubmedbert
+  freeze_image_backbone: true
+  freeze_text_layers: 8
+  lora_rank: 8
+  fusion_dim: 768
+  projection_dim: 256
+  num_fusion_stages: 1
+  modality_dropout_p: 0.15
+  multi_label: false
+
+# Lightweight model (fewer parameters)
+omni_modal_small:
+  num_modalities: 3
+  num_classes: 3
+  text_model: biobert
+  freeze_image_backbone: true
+  freeze_text_layers: 10     # Freeze more layers
+  lora_rank: 4               # Smaller LoRA rank
+  fusion_dim: 384            # Reduced fusion dimension
+  projection_dim: 128
+  num_fusion_stages: 1
+  modality_dropout_p: 0.10
+  multi_label: false
+
+# Single-modality model for chest X-ray + reports
+omni_modal_single:
+  num_modalities: 1
+  num_classes: 14            # CheXpert 14 labels
+  text_model: pubmedbert
+  freeze_image_backbone: true
+  freeze_text_layers: 8
+  lora_rank: 8
+  fusion_dim: 768
+  projection_dim: 256
+  num_fusion_stages: 1
+  modality_dropout_p: 0.15
+  multi_label: true
