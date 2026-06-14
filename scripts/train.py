@@ -47,7 +47,7 @@ def set_seed(seed: int):
 
 def load_config(config_path: str) -> dict:
     """Load YAML configuration file."""
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     return config
 
@@ -134,6 +134,13 @@ def main():
     # Smoke test
     if args.smoke_test:
         logger.info("Running smoke test (1 batch)...")
+        # Override to minimal settings for CPU testing
+        config["data"]["batch_size"] = 2
+        config["data"]["num_workers"] = 0
+        config["data"]["pin_memory"] = False
+        train_loader, val_loader = create_dataloaders(config)
+        trainer.train_loader = train_loader
+        trainer.val_loader = val_loader
         trainer.config["phase1"] = {"epochs": 1, "lr": 1e-4, "warmup_epochs": 0}
         trainer.train_phase1(epochs=1)
         logger.info("Smoke test passed!")

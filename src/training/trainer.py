@@ -19,7 +19,7 @@ import os
 import time
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
+from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from typing import Optional
@@ -77,7 +77,7 @@ class OmniModalTrainer:
 
         # Mixed precision
         self.use_amp = config.get("mixed_precision", True) and device == "cuda"
-        self.scaler = GradScaler(enabled=self.use_amp)
+        self.scaler = GradScaler('cuda', enabled=self.use_amp)
 
         # Gradient clipping
         self.gradient_clip_norm = config.get("gradient_clip_norm", 1.0)
@@ -168,7 +168,7 @@ class OmniModalTrainer:
             optimizer.zero_grad()
 
             # Forward pass with mixed precision
-            with autocast(enabled=self.use_amp):
+            with autocast('cuda', enabled=self.use_amp):
                 output = self.model(
                     images=images,
                     input_ids=input_ids,
@@ -257,7 +257,7 @@ class OmniModalTrainer:
             attention_mask = batch["attention_mask"].to(self.device)
             labels = batch["labels"].to(self.device)
 
-            with autocast(enabled=self.use_amp):
+            with autocast('cuda', enabled=self.use_amp):
                 output = self.model(
                     images=images,
                     input_ids=input_ids,

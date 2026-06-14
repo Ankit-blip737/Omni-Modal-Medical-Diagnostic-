@@ -39,7 +39,7 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
 
     # Load config
-    with open(args.config, "r") as f:
+    with open(args.config, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
     model_config = config.get("model", {})

@@ -30,9 +30,9 @@ class ModalityBranch(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Args:
-            x: Shared features (B, 192, 28, 28)
+            x: Shared features (B, 256, 28, 28)
         Returns:
-            Modality-specific features (B, 768, 7, 7)
+            Modality-specific features (B, 1024, 7, 7)
         """
         x = self.stage3(x)
         x = self.stage4(x)
@@ -169,9 +169,12 @@ class JointImageEncoder(nn.Module):
             branch_model = convnext_base(weights=weights)
             self.branches.append(ModalityBranch(branch_model))
 
-        # === Cross-attention fusion ===
-        self.fusion = ImageCrossAttentionFusion(embed_dim=768, num_heads=8)
+        # === Cross-attention fusion (operates at ConvNeXt's native 1024-dim) ===
+        self.fusion = ImageCrossAttentionFusion(embed_dim=1024, num_heads=8)
         self.fusion.register_modalities(num_modalities, num_patches=49)  # 7x7=49
+
+        # === Project from 1024 → 768 to match text encoder dimension ===
+        self.output_proj = nn.Linear(1024, 768)
 
         # Output dimension
         self.output_dim = 768
@@ -192,17 +195,20 @@ class JointImageEncoder(nn.Module):
         modality_features = []
         for i in range(M):
             x = images[:, i]  # (B, 1, H, W)
-            shared_feat = self.shared_stem_and_stages(x)  # (B, 192, 28, 28)
+            shared_feat = self.shared_stem_and_stages(x)  # (B, 256, 28, 28)
 
             # Pass through modality-specific branch
-            branch_feat = self.branches[i](shared_feat)  # (B, 768, 7, 7)
+            branch_feat = self.branches[i](shared_feat)  # (B, 1024, 7, 7)
 
-            # Flatten spatial dims to patches: (B, 49, 768)
+            # Flatten spatial dims to patches: (B, 49, 1024)
             branch_feat = branch_feat.flatten(2).transpose(1, 2)
             modality_features.append(branch_feat)
 
         # Fuse via cross-attention
-        fused = self.fusion(modality_features)  # (B, 49, 768)
+        fused = self.fusion(modality_features)  # (B, 49, 1024)
+
+        # Project to 768-dim to match text encoder
+        fused = self.output_proj(fused)  # (B, 49, 768)
 
         return fused
 
