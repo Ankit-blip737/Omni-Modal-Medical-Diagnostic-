@@ -65,6 +65,10 @@ def create_dataloaders(config: dict) -> tuple:
         from src.data.brats import get_brats_dataloaders
         loaders = get_brats_dataloaders(data_config)
         return loaders.get("train"), loaders.get("val")
+    elif dataset_type == "chex_multimodal":
+        from src.data.chex_multimodal import get_chex_multimodal_dataloaders
+        loaders = get_chex_multimodal_dataloaders(data_config)
+        return loaders.get("train"), loaders.get("val")
     else:
         raise ValueError(f"Unknown dataset: {dataset_type}")
 

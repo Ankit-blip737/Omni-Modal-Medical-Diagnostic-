@@ -1,0 +1,74 @@
+# ═══════════════════════════════════════════════════════════════
+#  CheXmultimodal Training Configuration
+# ═══════════════════════════════════════════════════════════════
+# Dataset: 324 chest X-rays + clinical indications from Stanford
+# Download: https://stanfordaimi.azurewebsites.net/datasets/3a7548a4-8f65-4ab7-85fa-3d68c9efc1bd
+# Or via Redivis: https://doi.org/10.57761/j8hp-mh04
+
+# ─── Training (adjusted for small dataset) ───
+training:
+  # Phase 1: Contrastive Alignment
+  phase1:
+    epochs: 30             # Fewer epochs for small dataset
+    batch_size: 16
+    lr: 1.0e-4
+    weight_decay: 1.0e-4
+    warmup_epochs: 3
+
+  # Phase 2: Fusion Training
+  phase2:
+    epochs: 50
+    batch_size: 8
+    lr: 5.0e-5
+    weight_decay: 1.0e-4
+    warmup_epochs: 5
+    lambda_align: 0.1
+
+  # Phase 3: End-to-End Fine-tuning
+  phase3:
+    epochs: 15
+    batch_size: 8
+    lr: 1.0e-6
+    weight_decay: 1.0e-5
+    warmup_epochs: 2
+    lambda_align: 0.05
+
+  gradient_clip_norm: 1.0
+  mixed_precision: true
+  seed: 42
+  log_every_n_steps: 10
+  val_every_n_epochs: 1
+
+# ─── Model (single modality for X-ray) ───
+model:
+  num_modalities: 1          # Single chest X-ray
+  num_classes: 10            # 10 pseudo-labels from indications
+  text_model: pubmedbert
+  freeze_image_backbone: true
+  freeze_text_layers: 8
+  lora_rank: 8
+  lora_alpha: 16.0
+  fusion_dim: 768
+  projection_dim: 256
+  num_fusion_stages: 1
+  modality_dropout_p: 0.0    # No modality dropout for single modality
+  multi_label: true
+
+# ─── Data ───
+data:
+  dataset: chex_multimodal
+  root_dir: ./chexmultimodal   # <-- Actual downloaded data location
+  image_size: 224
+  max_text_length: 128               # Indications are short
+  num_workers: 2
+  pin_memory: true
+  batch_size: 16
+
+# ─── Logging ───
+logging:
+  log_dir: ./logs
+  checkpoint_dir: ./checkpoints
+  log_every_n_steps: 10
+  val_every_n_epochs: 1
+  use_wandb: false
+  wandb_project: omni-modal-chexmultimodal
