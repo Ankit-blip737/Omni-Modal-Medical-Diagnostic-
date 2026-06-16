@@ -21,6 +21,7 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Model weights & data
 *.pth
@@ -32,6 +33,14 @@ checkpoints/
 logs/
 wandb/
 
+# Datasets (large — do NOT push)
+chexmultimodal/
+ASNR-MICCAI-BraTS*/
+BraTS-GLI-fastlane.tar.gz
+*.nii.gz
+*.tar.gz
+
 # Misc
 .env
 *.log
+implementation_plan.md
