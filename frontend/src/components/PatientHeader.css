@@ -1,0 +1,84 @@
+.patient-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.patient-main-info {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.patient-avatar {
+  width: 72px;
+  height: 72px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.patient-details h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.2rem;
+  color: var(--text-primary);
+}
+
+.patient-meta {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+.patient-stats {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stat-icon {
+  color: var(--text-muted);
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+@media (max-width: 992px) {
+  .patient-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
+  }
+  
+  .patient-stats {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+}
